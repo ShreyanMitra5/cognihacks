@@ -5,8 +5,35 @@ class TimerWidget {
     this.timerDisplay = null;
     this.progressBar = null;
     this.pauseBtn = null;
-    this.createWidget();
+    this.initialized = false;
     this.setupMessageListener();
+    
+    // Wait for DOM to be ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => this.initialize());
+    } else {
+      this.initialize();
+    }
+  }
+
+  initialize() {
+    if (this.initialized) return;
+    this.initialized = true;
+    
+    // Create and inject widget
+    this.createWidget();
+    
+    // Re-inject if body changes
+    const observer = new MutationObserver(() => {
+      if (!document.body.contains(this.widget)) {
+        this.createWidget();
+      }
+    });
+    
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
   }
 
   createWidget() {
@@ -14,26 +41,34 @@ class TimerWidget {
     this.widget = document.createElement('div');
     this.widget.id = 'archon-timer-widget';
     this.widget.style.cssText = `
-      all: initial;
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      width: 160px;
-      height: 44px;
-      background: rgba(0, 0, 0, 0.85);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
-      z-index: 2147483647;
-      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 12px;
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      cursor: move;
-      user-select: none;
+      all: initial !important;
+      position: fixed !important;
+      bottom: 20px !important;
+      right: 20px !important;
+      width: 160px !important;
+      height: 44px !important;
+      background: rgba(0, 0, 0, 0.85) !important;
+      border: 1px solid rgba(255, 255, 255, 0.1) !important;
+      border-radius: 12px !important;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4) !important;
+      z-index: 2147483647 !important;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      padding: 0 12px !important;
+      backdrop-filter: blur(16px) !important;
+      -webkit-backdrop-filter: blur(16px) !important;
+      cursor: move !important;
+      user-select: none !important;
+      pointer-events: auto !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      transform: none !important;
+      margin: 0 !important;
+      max-width: none !important;
+      max-height: none !important;
+      clip: auto !important;
     `;
 
     // Create progress bar
