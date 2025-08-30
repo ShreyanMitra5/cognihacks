@@ -20,7 +20,7 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["chart.js", "content-script.js"],
+      "js": ["flow-service.js", "chart.js", "content-script.js"],
       "css": ["content-styles.css"],
       "run_at": "document_start"
     }
@@ -51,7 +51,8 @@
     ]
   },
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background.js",
+    "type": "module"
   },
   "action": {
     "default_popup": "popup.html",

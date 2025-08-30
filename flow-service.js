@@ -54,4 +54,10 @@ class FlowService {
     return this.scoreData;
   }
 }
-window.FlowService = FlowService;
+
+// Make FlowService available globally
+if (typeof window !== 'undefined') {
+  window.FlowService = FlowService;
+} else {
+  globalThis.FlowService = FlowService;
+}

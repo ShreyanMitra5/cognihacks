@@ -319,9 +319,8 @@ class TimerWidget {
 
       // Create chart
       const ctx = document.getElementById('archon-chart').getContext('2d');
-      // Import Chart.js dynamically since it's loaded as a content script
-      const Chart = window.Chart;
-      new Chart(ctx, {
+      // Create chart
+      new window.Chart(ctx, {
         type: 'line',
         data: {
           labels: data.scoreData.map((_, i) => `${i + 1}`),
