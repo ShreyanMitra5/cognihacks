@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Archon</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
             margin: 0;
@@ -526,6 +527,46 @@
             color: #4ade80;
             opacity: 1;
         }
+
+        /* Focus Results Styles */
+        .focus-results {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            transition: all 0.3s ease;
+        }
+
+        .focus-stats {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .focus-score {
+            font-size: 32px;
+            font-weight: 300;
+            background: linear-gradient(135deg, #fff, rgba(255, 255, 255, 0.8));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 4px;
+        }
+
+        .focus-label {
+            font-size: 12px;
+            opacity: 0.6;
+        }
+
+        .focus-chart {
+            height: 200px;
+            margin-top: 20px;
+        }
+
+        .focus-chart canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
     </style>
 </head>
 <body>
@@ -602,6 +643,19 @@
                 <div class="status-text" id="statusText">Focus mode - stay productive!</div>
                 <div class="status-subtext" id="statusSubtext">Click arrow to show music controls</div>
             </div>
+
+            <!-- Focus Results (hidden by default) -->
+            <div id="focusResults" class="focus-results" style="display: none;">
+                <div class="focus-stats">
+                    <div class="focus-score">
+                        <span id="averageScore">0</span>%
+                        <div class="focus-label">Average Focus</div>
+                    </div>
+                </div>
+                <div class="focus-chart">
+                    <canvas id="flowChart"></canvas>
+                </div>
+            </div>
             </div>
 
             <!-- Collapse Button Wrapper -->
@@ -622,6 +676,7 @@
     <!-- Message -->
     <div id="message" class="message"></div>
 
+    <script src="flow-service.js"></script>
     <script src="popup.js"></script>
 </body>
 </html>

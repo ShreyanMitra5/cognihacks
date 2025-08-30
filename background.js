@@ -13,6 +13,9 @@ class SpotifyMoodPlayer {
     this.timerRemaining = this.timerDuration;
     this.timerInterval = null;
     
+    // Initialize flow service
+    this.flowService = new FlowService();
+    
     // Load saved timer state
     this.loadTimerState();
     
@@ -480,6 +483,9 @@ class SpotifyMoodPlayer {
     // Save initial state
     await this.saveTimerState();
     
+    // Start flow tracking with duration in minutes
+    this.flowService.startTracking(duration);
+    
     // Broadcast initial state
     await this.broadcastTimerUpdate();
     
@@ -491,7 +497,17 @@ class SpotifyMoodPlayer {
       
       if (this.timerRemaining <= 0) {
         this.stopTimer();
-        // Timer finished - could add notification here
+        // Send final flow data to content script
+        const tabs = await chrome.tabs.query({ active: true });
+        if (tabs[0]) {
+          await chrome.tabs.sendMessage(tabs[0].id, {
+            type: 'SHOW_RESULTS',
+            data: {
+              averageScore: this.flowService.getAverageScore(),
+              scoreData: this.flowService.getScoreData()
+            }
+          });
+        }
       }
       
       // Send timer update to popup and all tabs
@@ -737,6 +753,15 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           response = { 
             success: true,
             isAuthenticated: !!spotifyPlayer.accessToken
+          };
+          break;
+
+        case 'GET_FLOW_DATA':
+          response = {
+            success: true,
+            averageScore: spotifyPlayer.flowService.getAverageScore(),
+            scoreData: spotifyPlayer.flowService.getScoreData(),
+            duration: spotifyPlayer.timerDuration
           };
           break;
           

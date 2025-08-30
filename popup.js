@@ -709,11 +709,75 @@ class FocusTimerPopup {
       this.elements.stopBtn.disabled = true;
     }
     
+    // Show focus results
+    this.showFocusResults();
+    
     this.showMessage('Focus session completed!', 'success');
     this.updateStatus('Great job! Take a break.');
     
     // Hide widget
     this.hideWebpageWidget();
+  }
+
+  async showFocusResults() {
+    const response = await this.sendMessage({ type: 'GET_FLOW_DATA' });
+    if (!response || !response.success) return;
+
+    const { averageScore, scoreData } = response;
+    const resultsDiv = document.getElementById('focusResults');
+    const scoreSpan = document.getElementById('averageScore');
+    
+    // Update average score
+    scoreSpan.textContent = averageScore;
+    
+    // Create chart
+    const ctx = document.getElementById('flowChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: scoreData.map((_, i) => `${i + 1}`),
+        datasets: [{
+          label: 'Focus Score',
+          data: scoreData.map(d => d.score * 100),
+          borderColor: '#667eea',
+          backgroundColor: 'rgba(102, 126, 234, 0.1)',
+          tension: 0.4,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 100,
+            grid: {
+              color: 'rgba(255, 255, 255, 0.1)'
+            },
+            ticks: {
+              color: 'rgba(255, 255, 255, 0.7)'
+            }
+          },
+          x: {
+            grid: {
+              color: 'rgba(255, 255, 255, 0.1)'
+            },
+            ticks: {
+              color: 'rgba(255, 255, 255, 0.7)'
+            }
+          }
+        }
+      }
+    });
+
+    // Show results
+    resultsDiv.style.display = 'block';
   }
 
   async injectContentScript() {

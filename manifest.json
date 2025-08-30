@@ -14,20 +14,29 @@
   "host_permissions": [
     "https://accounts.spotify.com/*",
     "https://api.spotify.com/*",
+    "https://481606634176.ngrok-free.app/*",
     "<all_urls>"
   ],
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["content-script.js"],
-      "all_frames": true,
+      "js": ["chart.js", "content-script.js"],
+      "css": ["content-styles.css"],
       "run_at": "document_start"
     }
   ],
-  "web_accessible_resources": [{
-    "resources": ["content-script.js", "content-styles.css"],
-    "matches": ["<all_urls>"]
-  }],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "content-script.js",
+        "content-styles.css",
+        "flow-service.js",
+        "chart.js",
+        "icon.svg"
+      ],
+      "matches": ["<all_urls>"]
+    }
+  ],
   "oauth2": {
     "client_id": "5eb5fd2d8bb14edb8cc7f632cbe718a1",
     "scopes": [
@@ -41,31 +50,13 @@
       "playlist-read-collaborative"
     ]
   },
-  "host_permissions": [
-    "https://accounts.spotify.com/*",
-    "https://api.spotify.com/*"
-  ],
   "background": {
     "service_worker": "background.js"
   },
-  "content_scripts": [
-    {
-      "matches": ["<all_urls>"],
-      "js": ["content-script.js"],
-      "css": ["content-styles.css"],
-      "run_at": "document_end"
-    }
-  ],
   "action": {
     "default_popup": "popup.html",
     "default_title": "Archon - Focus Timer"
   },
-  "web_accessible_resources": [
-    {
-      "resources": ["icon.svg"],
-      "matches": ["<all_urls>"]
-    }
-  ],
   "icons": {
     "16": "icon.svg",
     "48": "icon.svg",
