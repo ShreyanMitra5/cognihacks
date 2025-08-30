@@ -480,6 +480,9 @@ class SpotifyMoodPlayer {
     // Save initial state
     await this.saveTimerState();
     
+    // Broadcast initial state
+    await this.broadcastTimerUpdate();
+    
     this.timerInterval = setInterval(async () => {
       this.timerRemaining--;
       
@@ -491,8 +494,8 @@ class SpotifyMoodPlayer {
         // Timer finished - could add notification here
       }
       
-      // Send timer update to popup
-      this.updatePopup();
+      // Send timer update to popup and all tabs
+      await this.updatePopup();
     }, 1000);
     
     console.log(`⏰ Timer started for ${duration} minutes`);
@@ -556,6 +559,29 @@ class SpotifyMoodPlayer {
     };
   }
 
+  async broadcastTimerUpdate() {
+    try {
+      // Get all tabs
+      const tabs = await chrome.tabs.query({});
+      const timerState = this.getTimerState();
+
+      // Send update to all tabs
+      for (const tab of tabs) {
+        try {
+          await chrome.tabs.sendMessage(tab.id, {
+            type: 'UPDATE_TIMER',
+            timer: timerState
+          });
+        } catch (error) {
+          // Tab might not have content script
+          console.log('Could not update tab:', tab.id);
+        }
+      }
+    } catch (error) {
+      console.error('Error broadcasting timer update:', error);
+    }
+  }
+
   async updatePopup() {
     try {
       const playbackState = await this.getCurrentPlaybackState();
@@ -578,6 +604,9 @@ class SpotifyMoodPlayer {
       } catch (error) {
         // Popup might be closed
       }
+
+      // Also broadcast to all tabs
+      await this.broadcastTimerUpdate();
       
     } catch (error) {
       console.error('Error in updatePopup:', error);

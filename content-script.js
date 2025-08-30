@@ -176,25 +176,15 @@ class TimerWidget {
     if (!timer) return;
     
     // Store the timer state
-    this.currentTimer = timer;
-    
-    // Clear any existing interval
-    if (this.updateInterval) {
-      clearInterval(this.updateInterval);
-    }
+    this.currentTimer = {
+      ...timer,
+      running: timer.running,
+      remaining: timer.remaining,
+      duration: timer.duration
+    };
     
     // Update immediately
     this.updateDisplay();
-    
-    // If timer is running, start local updates
-    if (timer.running) {
-      this.updateInterval = setInterval(() => {
-        if (this.currentTimer.remaining > 0) {
-          this.currentTimer.remaining--;
-          this.updateDisplay();
-        }
-      }, 1000);
-    }
   }
 
   updateDisplay() {
