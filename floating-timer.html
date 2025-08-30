@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Focus Timer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000;
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            overflow: hidden;
+        }
+
+        .floating-timer {
+            position: fixed;
+            top: 100px;
+            left: 100px;
+            width: 160px;
+            height: 44px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+            cursor: move;
+            user-select: none;
+            z-index: 10000;
+            overflow: hidden;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 12px;
+        }
+
+        .progress-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 2px;
+            background: #667eea;
+            transition: width 1s linear;
+            z-index: 2;
+        }
+
+        .timer-display {
+            font-size: 15px;
+            font-weight: 500;
+            color: #fff;
+            letter-spacing: 0.5px;
+            z-index: 1;
+        }
+
+        .pause-btn {
+            width: 24px;
+            height: 24px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            z-index: 1;
+            padding: 0;
+        }
+
+        .pause-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .pause-btn:active {
+            transform: scale(0.95);
+        }
+
+        @media (max-width: 768px) {
+            .floating-timer {
+                width: 140px;
+                height: 40px;
+            }
+            
+            .timer-display {
+                font-size: 14px;
+            }
+            
+            .pause-btn {
+                width: 22px;
+                height: 22px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-timer" id="floatingTimer">
+        <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+        <div class="timer-display" id="timerDisplay">25:00</div>
+        <button id="pauseBtn" class="pause-btn" title="Pause/Resume">⏸</button>
+    </div>
+
+    <script>
+        class FloatingTimer {
+            constructor() {
+                this.timer = null;
+                this.isRunning = false;
+                this.isPaused = false;
+                this.duration = 25 * 60;
+                this.remaining = this.duration;
+                
+                this.init();
+                this.startTimer(); // Auto-start the timer
+            }
+            
+            init() {
+                this.setupDragAndDrop();
+                this.setupTimerControls();
+                this.updateProgressBar();
+                this.updateDisplay();
+            }
+            
+            setupDragAndDrop() {
+                const timer = document.getElementById('floatingTimer');
+                let isDragging = false;
+                let startX, startY, startLeft, startTop;
+                
+                timer.addEventListener('mousedown', (e) => {
+                    if (e.target.classList.contains('pause-btn')) {
+                        return;
+                    }
+                    
+                    isDragging = true;
+                    startX = e.clientX;
+                    startY = e.clientY;
+                    startLeft = parseInt(timer.style.left) || 100;
+                    startTop = parseInt(timer.style.top) || 100;
+                    
+                    timer.style.cursor = 'grabbing';
+                });
+                
+                document.addEventListener('mousemove', (e) => {
+                    if (!isDragging) return;
+                    
+                    const deltaX = e.clientX - startX;
+                    const deltaY = e.clientY - startY;
+                    
+                    timer.style.left = (startLeft + deltaX) + 'px';
+                    timer.style.top = (startTop + deltaY) + 'px';
+                });
+                
+                document.addEventListener('mouseup', () => {
+                    if (isDragging) {
+                        isDragging = false;
+                        timer.style.cursor = 'move';
+                    }
+                });
+            }
+            
+            setupTimerControls() {
+                const pauseBtn = document.getElementById('pauseBtn');
+                if (pauseBtn) {
+                    pauseBtn.addEventListener('click', () => this.togglePause());
+                }
+            }
+            
+            togglePause() {
+                if (!this.isRunning) {
+                    this.startTimer();
+                    return;
+                }
+                
+                if (this.isPaused) {
+                    this.resumeTimer();
+                } else {
+                    this.pauseTimer();
+                }
+            }
+            
+            startTimer() {
+                if (this.isRunning && !this.isPaused) return;
+                
+                this.isRunning = true;
+                this.isPaused = false;
+                this.remaining = this.duration;
+                
+                this.timer = setInterval(() => {
+                    this.remaining--;
+                    this.updateDisplay();
+                    this.updateProgressBar();
+                    
+                    if (this.remaining <= 0) {
+                        this.completeTimer();
+                    }
+                }, 1000);
+                
+                this.updateDisplay();
+                this.updatePauseButton();
+            }
+            
+            pauseTimer() {
+                if (!this.isRunning || this.isPaused) return;
+                
+                clearInterval(this.timer);
+                this.isPaused = true;
+                this.updatePauseButton();
+            }
+            
+            resumeTimer() {
+                if (!this.isRunning || !this.isPaused) return;
+                
+                this.isPaused = false;
+                this.timer = setInterval(() => {
+                    this.remaining--;
+                    this.updateDisplay();
+                    this.updateProgressBar();
+                    
+                    if (this.remaining <= 0) {
+                        this.completeTimer();
+                    }
+                }, 1000);
+                
+                this.updatePauseButton();
+            }
+            
+            completeTimer() {
+                clearInterval(this.timer);
+                this.isRunning = false;
+                this.isPaused = false;
+                this.remaining = 0;
+                this.updateDisplay();
+                this.updateProgressBar();
+                this.updatePauseButton();
+                
+                setTimeout(() => {
+                    this.startTimer(); // Auto-restart when done
+                }, 1000);
+            }
+            
+            updatePauseButton() {
+                const pauseBtn = document.getElementById('pauseBtn');
+                if (!pauseBtn) return;
+                
+                if (this.isRunning && !this.isPaused) {
+                    pauseBtn.textContent = '⏸';
+                    pauseBtn.title = 'Pause';
+                } else {
+                    pauseBtn.textContent = '▶';
+                    pauseBtn.title = 'Resume';
+                }
+            }
+            
+            updateDisplay() {
+                const timerDisplay = document.getElementById('timerDisplay');
+                if (timerDisplay) {
+                    const minutes = Math.floor(this.remaining / 60);
+                    const seconds = this.remaining % 60;
+                    timerDisplay.textContent = 
+                        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                }
+            }
+            
+            updateProgressBar() {
+                const progressBar = document.getElementById('progressBar');
+                if (progressBar) {
+                    const progress = ((this.duration - this.remaining) / this.duration) * 100;
+                    progressBar.style.width = `${progress}%`;
+                }
+            }
+        }
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            new FloatingTimer();
+        });
+    </script>
+</body>
+</html>

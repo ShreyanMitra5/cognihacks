@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Focus Timer Widget</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: transparent;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            overflow: hidden;
+        }
+
+        #widget {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 160px;
+            height: 44px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+            cursor: move;
+            user-select: none;
+            z-index: 10000;
+            overflow: hidden;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 12px;
+            resize: none;
+        }
+
+        #progressBar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 2px;
+            background: #667eea;
+            transition: width 1s linear;
+            z-index: 2;
+        }
+
+        #timerDisplay {
+            font-size: 15px;
+            font-weight: 500;
+            color: #fff;
+            letter-spacing: 0.5px;
+            z-index: 1;
+        }
+
+        #pauseBtn {
+            width: 24px;
+            height: 24px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            z-index: 1;
+            padding: 0;
+        }
+
+        #pauseBtn:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        #pauseBtn:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body>
+    <div id="widget">
+        <div id="progressBar" style="width: 0%"></div>
+        <div id="timerDisplay">25:00</div>
+        <button id="pauseBtn" title="Pause/Resume">⏸</button>
+    </div>
+
+    <script>
+        class TimerWidget {
+            constructor() {
+                this.widget = document.getElementById('widget');
+                this.timerDisplay = document.getElementById('timerDisplay');
+                this.progressBar = document.getElementById('progressBar');
+                this.pauseBtn = document.getElementById('pauseBtn');
+                
+                this.setupDragAndDrop();
+                this.setupMessageListener();
+            }
+
+            setupDragAndDrop() {
+                let isDragging = false;
+                let startX, startY, startLeft, startTop;
+
+                this.widget.addEventListener('mousedown', (e) => {
+                    if (e.target === this.pauseBtn) return;
+
+                    isDragging = true;
+                    startX = e.clientX;
+                    startY = e.clientY;
+                    startLeft = parseInt(window.getComputedStyle(this.widget).right) || 20;
+                    startTop = parseInt(window.getComputedStyle(this.widget).bottom) || 20;
+
+                    this.widget.style.cursor = 'grabbing';
+                });
+
+                document.addEventListener('mousemove', (e) => {
+                    if (!isDragging) return;
+
+                    const deltaX = startX - e.clientX;
+                    const deltaY = startY - e.clientY;
+
+                    this.widget.style.right = (startLeft + deltaX) + 'px';
+                    this.widget.style.bottom = (startTop + deltaY) + 'px';
+                });
+
+                document.addEventListener('mouseup', () => {
+                    if (isDragging) {
+                        isDragging = false;
+                        this.widget.style.cursor = 'move';
+                    }
+                });
+            }
+
+            setupMessageListener() {
+                window.addEventListener('message', (event) => {
+                    if (event.data.type === 'UPDATE_TIMER') {
+                        this.updateTimer(event.data.timer);
+                    }
+                });
+            }
+
+            updateTimer(timer) {
+                const minutes = Math.floor(timer.remaining / 60);
+                const seconds = timer.remaining % 60;
+                this.timerDisplay.textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+                const progress = ((timer.duration - timer.remaining) / timer.duration) * 100;
+                this.progressBar.style.width = `${progress}%`;
+
+                this.pauseBtn.textContent = timer.running ? '⏸' : '▶';
+            }
+        }
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            new TimerWidget();
+        });
+    </script>
+</body>
+</html>

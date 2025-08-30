@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify Tab Player Test</title>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            background: #f5f5f5;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .domain-test {
+            background: #e8f5e8;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid #1DB954;
+        }
+        h1 {
+            color: #1DB954;
+            text-align: center;
+        }
+        h2 {
+            color: #333;
+        }
+        .note {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #ffc107;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎵 Spotify Tab Player Test Page</h1>
+    
+    <div class="note">
+        <strong>Note:</strong> This is a test page to verify the Spotify Tab Player extension. 
+        The extension should automatically detect this domain and play the default playlist.
+    </div>
+    
+    <div class="test-section">
+        <h2>How to Test the Extension</h2>
+        <ol>
+            <li>Make sure the extension is installed and authenticated with Spotify</li>
+            <li>Navigate to different websites to test automatic playlist switching:</li>
+            <ul>
+                <li><strong>Medium.com</strong> → Should play Lofi Hip Hop</li>
+                <li><strong>Gmail.com</strong> → Should play Deep Focus</li>
+                <li><strong>Reddit.com</strong> → Should play Beast Mode</li>
+                <li><strong>YouTube.com</strong> → Should play Lofi Hip Hop</li>
+                <li><strong>Any other site</strong> → Should play Study Vibes (default)</li>
+            </ul>
+            <li>Use the extension popup to manually control playback</li>
+            <li>Check that music continues playing when you close the popup</li>
+        </ol>
+    </div>
+    
+    <div class="test-section">
+        <h2>Expected Behavior</h2>
+        <div class="domain-test">
+            <strong>Current Domain:</strong> This test page<br>
+            <strong>Expected Playlist:</strong> Study Vibes (default)<br>
+            <strong>Playlist ID:</strong> 37i9dQZF1DXcBWIGoYBM5M
+        </div>
+        
+        <h3>Domain Mappings:</h3>
+        <div class="domain-test">
+            <strong>Reading Sites (Medium, etc.):</strong> Lofi Hip Hop<br>
+            <strong>Gmail/Docs:</strong> Deep Focus<br>
+            <strong>Reddit:</strong> Beast Mode<br>
+            <strong>YouTube:</strong> Lofi Hip Hop<br>
+            <strong>Default:</strong> Study Vibes
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Troubleshooting</h2>
+        <ul>
+            <li><strong>No music playing:</strong> Make sure Spotify is open and you have a Premium account</li>
+            <li><strong>Authentication failed:</strong> Check the extension popup and try re-authenticating</li>
+            <li><strong>Wrong playlist:</strong> Check the domain mapping in background.js</li>
+            <li><strong>Extension not working:</strong> Check Chrome DevTools console for errors</li>
+        </ul>
+    </div>
+    
+    <div class="test-section">
+        <h2>Extension Features</h2>
+        <ul>
+            <li>✅ OAuth 2.0 authentication with PKCE</li>
+            <li>✅ Automatic playlist selection based on domain</li>
+            <li>✅ Background playback (continues after popup closes)</li>
+            <li>✅ Full playback controls (play/pause, next/previous)</li>
+            <li>✅ Manual playlist selection</li>
+            <li>✅ Real-time track information</li>
+            <li>✅ Token refresh and persistent login</li>
+            <li>✅ Error handling and fallbacks</li>
+        </ul>
+    </div>
+    
+    <div style="text-align: center; margin-top: 40px; color: #666;">
+        <p>🎧 Happy listening with Spotify Tab Player!</p>
+        <p>For more information, see the README.md file</p>
+    </div>
+</body>
+</html>

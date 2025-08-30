@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Archon</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 300px;
+            min-height: 400px;
+            background: #000;
+            color: #fff;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            overflow: hidden;
+            position: relative;
+            user-select: none;
+        }
+
+        .container {
+            padding: 16px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .container.collapsed {
+            height: 240px;
+        }
+
+        .collapse-btn {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            pointer-events: auto;
+            margin: 0 auto;
+        }
+
+        .container {
+            position: relative;
+            padding-bottom: 60px;
+        }
+
+        .collapse-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .collapse-btn i {
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 16px;
+            background: linear-gradient(135deg, #fff, rgba(255, 255, 255, 0.8));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .container.collapsed .collapse-btn i {
+            transform: rotate(180deg);
+        }
+
+        .collapsible-section {
+            transition: all 0.3s ease;
+            opacity: 1;
+            max-height: 500px;
+            overflow: hidden;
+        }
+
+        .container.collapsed .collapsible-section {
+            opacity: 0;
+            max-height: 0;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 20px 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+            margin-bottom: 4px;
+            background: linear-gradient(135deg, #fff, rgba(255, 255, 255, 0.8));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 11px;
+            opacity: 0.6;
+            letter-spacing: 0.3px;
+            font-weight: 400;
+            text-transform: uppercase;
+        }
+
+        /* Timer Section */
+        .timer-section {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            position: relative;
+            cursor: move;
+        }
+
+        .timer-section.dragging {
+            opacity: 0.8;
+            transform: scale(1.02);
+            z-index: 1000;
+        }
+
+        .timer-display {
+            font-size: 32px;
+            font-weight: 300;
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 16px;
+            letter-spacing: 1px;
+            background: linear-gradient(135deg, #fff, rgba(255, 255, 255, 0.9));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            padding: 8px;
+            border-radius: 8px;
+            user-select: text;
+        }
+
+        .timer-display:hover {
+            background: rgba(255, 255, 255, 0.05);
+            -webkit-background-clip: unset;
+            -webkit-text-fill-color: unset;
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+        }
+
+        .timer-display:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            -webkit-background-clip: unset;
+            -webkit-text-fill-color: unset;
+            color: #fff;
+        }
+
+        .timer-display.editing {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            -webkit-background-clip: unset;
+            -webkit-text-fill-color: unset;
+            color: #fff;
+        }
+
+        .timer-progress {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 4px;
+            margin-bottom: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .timer-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #fff, rgba(255, 255, 255, 0.8));
+            border-radius: 4px;
+            transition: width 1s linear;
+            position: relative;
+        }
+
+        .timer-controls {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .timer-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            min-width: 60px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .timer-btn:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .timer-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .timer-btn.primary {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Playlist Section */
+        .playlist-section {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            cursor: move;
+        }
+
+        .playlist-section.dragging {
+            opacity: 0.8;
+            transform: scale(1.02);
+            z-index: 1000;
+        }
+
+        .playlist-section h3 {
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 16px;
+            text-align: center;
+            opacity: 0.9;
+            position: relative;
+        }
+
+        .playlist-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .playlist-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #fff;
+            padding: 16px 12px;
+            cursor: pointer;
+            font-size: 10px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            text-align: center;
+            position: relative;
+            border-radius: 12px;
+        }
+
+        .playlist-btn:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .playlist-btn.active {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .playlist-btn i {
+            display: block;
+            font-size: 16px;
+            margin-bottom: 6px;
+            opacity: 0.9;
+        }
+
+        /* Music Controls */
+        .music-controls {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 16px;
+            padding: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            cursor: move;
+        }
+
+        .music-controls.dragging {
+            opacity: 0.8;
+            transform: scale(1.02);
+            z-index: 1000;
+        }
+
+        .music-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            border-radius: 12px;
+        }
+
+        .music-btn:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .music-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Status */
+        .status {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            text-align: center;
+            cursor: move;
+            margin-bottom: 48px;
+            position: relative;
+        }
+
+        .status.dragging {
+            opacity: 0.8;
+            transform: scale(1.02);
+            z-index: 1000;
+        }
+
+        .status-text {
+            font-size: 12px;
+            opacity: 0.8;
+            font-weight: 500;
+            margin-bottom: 4px;
+            background: linear-gradient(135deg, #fff, rgba(255, 255, 255, 0.8));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .status-subtext {
+            font-size: 10px;
+            opacity: 0.5;
+            font-weight: 400;
+            letter-spacing: 0.2px;
+        }
+
+        .collapse-btn-wrapper {
+            position: fixed;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none;
+            z-index: 1001;
+            background: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%);
+            padding: 20px 0;
+            margin-bottom: -20px;
+        }
+
+        /* Auth Section */
+        .auth-section {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .auth-btn {
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 24px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-radius: 16px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin: 0 auto;
+        }
+
+        .auth-btn:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Loading */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-top: 2px solid rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Messages */
+        .message {
+            position: fixed;
+            top: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 8px 16px;
+            font-size: 10px;
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            border-radius: 12px;
+            backdrop-filter: blur(20px);
+        }
+
+        .message.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Drag and Drop Styles */
+        .draggable {
+            cursor: move;
+            transition: all 0.2s ease;
+        }
+
+        .draggable:hover {
+            transform: translateY(-1px);
+        }
+
+        .dragging {
+            opacity: 0.8;
+            transform: scale(1.02);
+            z-index: 1000;
+        }
+
+        /* Responsive */
+        @media (max-width: 320px) {
+            body {
+                width: 280px;
+            }
+            
+            .container {
+                padding: 12px;
+                gap: 12px;
+            }
+            
+            .timer-section {
+                padding: 16px;
+            }
+            
+            .timer-display {
+                font-size: 28px;
+            }
+            
+            .playlist-grid {
+                gap: 6px;
+            }
+        }
+
+        /* Auth button states */
+        .auth-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .connected {
+            color: #4ade80;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Archon</h1>
+            <p>Neural Optimization</p>
+        </div>
+
+        <!-- Auth Section (shown when not authenticated) -->
+        <div id="authSection" class="auth-section" style="display: none;">
+            <p style="margin-bottom: 16px; opacity: 0.7; font-size: 12px;">Connect to Spotify to begin</p>
+            <div id="authStatus" style="margin-bottom: 16px; font-size: 12px; opacity: 0.6;">Not Connected</div>
+            <button id="authBtn" class="auth-btn">
+                <i class="fab fa-spotify"></i> Connect
+            </button>
+        </div>
+
+        <!-- Main Content (shown when authenticated) -->
+        <div id="mainContent" style="display: none;">
+            <!-- Timer Section -->
+            <div class="timer-section draggable" draggable="true">
+                <div class="timer-display" id="timerDisplay">25:00</div>
+                <div class="timer-progress">
+                    <div class="timer-progress-fill" id="timerProgress" style="width: 0%"></div>
+                </div>
+                <div class="timer-controls">
+                    <button id="startBtn" class="timer-btn primary">Start</button>
+                    <button id="pauseBtn" class="timer-btn" disabled>Pause</button>
+                    <button id="stopBtn" class="timer-btn" disabled>Stop</button>
+                </div>
+            </div>
+
+            <div class="collapsible-section">
+                <!-- Playlist Section -->
+                <div class="playlist-section draggable" draggable="true">
+                    <h3>Focus Music</h3>
+                    <div class="playlist-grid">
+                        <button id="energeticBtn" class="playlist-btn" data-mood="energetic">
+                            <i class="fas fa-bolt"></i>
+                            Energetic
+                        </button>
+                        <button id="sleepBtn" class="playlist-btn" data-mood="sleep">
+                            <i class="fas fa-moon"></i>
+                            Sleep
+                        </button>
+                        <button id="ambientBtn" class="playlist-btn" data-mood="ambient">
+                            <i class="fas fa-tree"></i>
+                            Ambient
+                        </button>
+                        <button id="chillBtn" class="playlist-btn" data-mood="chill">
+                            <i class="fas fa-graduation-cap"></i>
+                            Chill Study
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Music Controls -->
+                <div class="music-controls draggable" draggable="true">
+                    <button id="prevBtn" class="music-btn" disabled>
+                        <i class="fas fa-step-backward"></i>
+                    </button>
+                    <button id="playPauseBtn" class="music-btn" disabled>
+                        <i class="fas fa-play"></i>
+                    </button>
+                    <button id="nextBtn" class="music-btn" disabled>
+                        <i class="fas fa-step-forward"></i>
+                    </button>
+                </div>
+
+                            <!-- Status -->
+            <div class="status draggable" draggable="true">
+                <div class="status-text" id="statusText">Focus mode - stay productive!</div>
+                <div class="status-subtext" id="statusSubtext">Click arrow to show music controls</div>
+            </div>
+            </div>
+
+            <!-- Collapse Button Wrapper -->
+            <div class="collapse-btn-wrapper">
+                <button class="collapse-btn" id="collapseBtn">
+                    <i class="fas fa-chevron-up"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p style="font-size: 11px;">Loading...</p>
+        </div>
+    </div>
+
+    <!-- Message -->
+    <div id="message" class="message"></div>
+
+    <script src="popup.js"></script>
+</body>
+</html>

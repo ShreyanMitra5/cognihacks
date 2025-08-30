@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timer Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #000;
+            color: #fff;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #333;
+            border-radius: 8px;
+        }
+        button {
+            background: #333;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #555;
+        }
+        .timer-display {
+            font-size: 48px;
+            font-family: monospace;
+            margin: 20px 0;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #333;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #fff;
+            transition: width 1s linear;
+        }
+    </style>
+</head>
+<body>
+    <h1>Timer Test</h1>
+    
+    <div class="test-section">
+        <h2>Timer Display</h2>
+        <div class="timer-display" id="timerDisplay">25:00</div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Timer Controls</h2>
+        <button onclick="startTimer()">Start</button>
+        <button onclick="pauseTimer()">Pause</button>
+        <button onclick="resumeTimer()">Resume</button>
+        <button onclick="stopTimer()">Stop</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>Timer State</h2>
+        <p>Running: <span id="runningState">false</span></p>
+        <p>Remaining: <span id="remainingState">1500</span> seconds</p>
+        <p>Duration: <span id="durationState">1500</span> seconds</p>
+    </div>
+
+    <script>
+        let timerInterval;
+        let timerRunning = false;
+        let timerRemaining = 25 * 60; // 25 minutes in seconds
+        let timerDuration = 25 * 60;
+
+        function updateDisplay() {
+            const minutes = Math.floor(timerRemaining / 60);
+            const seconds = timerRemaining % 60;
+            document.getElementById('timerDisplay').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            const progress = ((timerDuration - timerRemaining) / timerDuration) * 100;
+            document.getElementById('progressFill').style.width = `${progress}%`;
+            
+            document.getElementById('runningState').textContent = timerRunning;
+            document.getElementById('remainingState').textContent = timerRemaining;
+            document.getElementById('durationState').textContent = timerDuration;
+        }
+
+        function startTimer() {
+            if (timerRunning) return;
+            
+            timerRunning = true;
+            timerInterval = setInterval(() => {
+                timerRemaining--;
+                
+                if (timerRemaining <= 0) {
+                    stopTimer();
+                    alert('Timer finished!');
+                } else {
+                    updateDisplay();
+                }
+            }, 1000);
+            
+            updateDisplay();
+        }
+
+        function pauseTimer() {
+            if (timerRunning) {
+                clearInterval(timerInterval);
+                timerRunning = false;
+                updateDisplay();
+            }
+        }
+
+        function resumeTimer() {
+            if (!timerRunning && timerRemaining > 0) {
+                timerRunning = true;
+                timerInterval = setInterval(() => {
+                    timerRemaining--;
+                    
+                    if (timerRemaining <= 0) {
+                        stopTimer();
+                        alert('Timer finished!');
+                    } else {
+                        updateDisplay();
+                    }
+                }, 1000);
+                
+                updateDisplay();
+            }
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+            timerRunning = false;
+            timerRemaining = timerDuration;
+            updateDisplay();
+        }
+
+        // Initialize display
+        updateDisplay();
+    </script>
+</body>
+</html>

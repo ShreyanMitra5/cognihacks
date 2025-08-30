@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify Tab Player - Test Sites</title>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        .test-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease;
+        }
+        .test-card:hover {
+            transform: translateY(-5px);
+        }
+        .test-card h3 {
+            margin-bottom: 10px;
+            color: #1DB954;
+        }
+        .test-card p {
+            margin-bottom: 15px;
+            opacity: 0.9;
+        }
+        .test-link {
+            display: inline-block;
+            background: linear-gradient(135deg, #1DB954 0%, #1ed760 100%);
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .test-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(29, 185, 84, 0.3);
+        }
+        .playlist-info {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+        .instructions {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .instructions h2 {
+            color: #1DB954;
+            margin-bottom: 15px;
+        }
+        .instructions ol {
+            padding-left: 20px;
+        }
+        .instructions li {
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎵 Spotify Tab Player Test</h1>
+        <p>Click the links below to test automatic playlist switching</p>
+    </div>
+
+    <div class="instructions">
+        <h2>How to Test</h2>
+        <ol>
+            <li>Make sure the Spotify Tab Player extension is installed and connected</li>
+            <li>Open Spotify on your computer or phone</li>
+            <li>Click any of the test links below</li>
+            <li>Watch as the extension automatically switches playlists based on the website!</li>
+            <li>Check the extension popup to see the current playlist</li>
+        </ol>
+    </div>
+
+    <div class="test-grid">
+        <div class="test-card">
+            <h3>📖 Reading & Learning</h3>
+            <p>These sites will play <strong>Lofi Hip Hop</strong> for a relaxed reading experience.</p>
+            <a href="https://medium.com" target="_blank" class="test-link">Medium</a>
+            <a href="https://dev.to" target="_blank" class="test-link">Dev.to</a>
+            <a href="https://wikipedia.org" target="_blank" class="test-link">Wikipedia</a>
+            <div class="playlist-info">
+                🎵 Playlist: Lofi Hip Hop (37i9dQZF1DX5Vy6DFOcx00)
+            </div>
+        </div>
+
+        <div class="test-card">
+            <h3>💼 Work & Productivity</h3>
+            <p>These sites will play <strong>Deep Focus</strong> for concentration and work.</p>
+            <a href="https://gmail.com" target="_blank" class="test-link">Gmail</a>
+            <a href="https://docs.google.com" target="_blank" class="test-link">Google Docs</a>
+            <a href="https://github.com" target="_blank" class="test-link">GitHub</a>
+            <a href="https://stackoverflow.com" target="_blank" class="test-link">Stack Overflow</a>
+            <div class="playlist-info">
+                🎯 Playlist: Deep Focus (37i9dQZF1DX8NTLI2TtZa6)
+            </div>
+        </div>
+
+        <div class="test-card">
+            <h3>🤖 Social Media & Entertainment</h3>
+            <p>These sites will play <strong>Beast Mode</strong> for high-energy browsing.</p>
+            <a href="https://reddit.com" target="_blank" class="test-link">Reddit</a>
+            <a href="https://youtube.com" target="_blank" class="test-link">YouTube</a>
+            <a href="https://twitter.com" target="_blank" class="test-link">Twitter</a>
+            <a href="https://instagram.com" target="_blank" class="test-link">Instagram</a>
+            <div class="playlist-info">
+                🔥 Playlist: Beast Mode (37i9dQZF1DX76Wlfdnj7AP)
+            </div>
+        </div>
+
+        <div class="test-card">
+            <h3>🛒 Shopping & News</h3>
+            <p>These sites will play <strong>Study Vibes</strong> for general browsing.</p>
+            <a href="https://amazon.com" target="_blank" class="test-link">Amazon</a>
+            <a href="https://cnn.com" target="_blank" class="test-link">CNN</a>
+            <a href="https://bbc.com" target="_blank" class="test-link">BBC</a>
+            <a href="https://nytimes.com" target="_blank" class="test-link">NY Times</a>
+            <div class="playlist-info">
+                📚 Playlist: Study Vibes (37i9dQZF1DXcBWIGoYBM5M)
+            </div>
+        </div>
+    </div>
+
+    <div class="instructions">
+        <h2>🎧 Expected Behavior</h2>
+        <ul>
+            <li><strong>Reading sites</strong> → Lofi Hip Hop (relaxed, instrumental)</li>
+            <li><strong>Work sites</strong> → Deep Focus (concentration, ambient)</li>
+            <li><strong>Social media</strong> → Beast Mode (high-energy, upbeat)</li>
+            <li><strong>Shopping/News</strong> → Study Vibes (balanced, versatile)</li>
+        </ul>
+        <p><strong>Note:</strong> The extension will automatically detect the domain and switch playlists within a few seconds of loading the page.</p>
+    </div>
+
+    <script>
+        // Add some interactivity
+        document.querySelectorAll('.test-link').forEach(link => {
+            link.addEventListener('click', function() {
+                console.log('🎵 Testing playlist switching for:', this.href);
+                console.log('The extension should automatically switch playlists when this page loads!');
+            });
+        });
+    </script>
+</body>
+</html>
+

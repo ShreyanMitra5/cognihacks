@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Playlist Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #1DB954;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #1ed760;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            background: #f0f0f0;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <h1>🎵 Spotify Playlist Test</h1>
+    
+    <div class="test-section">
+        <h3>Test Current Playlist Mappings</h3>
+        <button onclick="getMappings()">📋 View All Mappings</button>
+        <div id="mappingsResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Test Specific Playlist ID</h3>
+        <input type="text" id="playlistId" placeholder="Enter playlist ID (22 characters)" maxlength="22" style="width: 300px; padding: 8px; margin-right: 10px;">
+        <button onclick="testPlaylist()">🔍 Test Playlist</button>
+        <div id="testResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Test Playback</h3>
+        <button onclick="getState()">📊 Get Current State</button>
+        <button onclick="togglePlayback()">▶️ Toggle Playback</button>
+        <div id="playbackResult"></div>
+    </div>
+
+    <script>
+        function showResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="result ${type}">${message}</div>`;
+        }
+
+        function sendMessage(message) {
+            return new Promise((resolve, reject) => {
+                if (typeof chrome === 'undefined' || !chrome.runtime) {
+                    reject(new Error('Chrome extension API not available. Make sure this page is opened from the extension.'));
+                    return;
+                }
+                
+                chrome.runtime.sendMessage(message, (response) => {
+                    if (chrome.runtime.lastError) {
+                        reject(new Error(chrome.runtime.lastError.message));
+                    } else if (!response) {
+                        reject(new Error('No response received'));
+                    } else {
+                        resolve(response);
+                    }
+                });
+            });
+        }
+
+        async function getMappings() {
+            try {
+                const response = await sendMessage({ type: 'GET_PLAYLIST_MAPPINGS' });
+                if (response.success) {
+                    const mappings = response.mappings;
+                    let html = '<h4>Current Playlist Mappings:</h4>';
+                    Object.entries(mappings).forEach(([domain, playlistId]) => {
+                        html += `<div><strong>${domain}:</strong> ${playlistId}</div>`;
+                    });
+                    showResult('mappingsResult', html, 'success');
+                } else {
+                    showResult('mappingsResult', `Error: ${response.error}`, 'error');
+                }
+            } catch (error) {
+                showResult('mappingsResult', `Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testPlaylist() {
+            const playlistId = document.getElementById('playlistId').value.trim();
+            if (!playlistId) {
+                showResult('testResult', 'Please enter a playlist ID', 'error');
+                return;
+            }
+            
+            try {
+                const response = await sendMessage({ type: 'VALIDATE_PLAYLIST', playlistId });
+                if (response.success) {
+                    showResult('testResult', `✅ Valid playlist: "${response.playlistName}"`, 'success');
+                } else {
+                    showResult('testResult', `❌ Invalid playlist: ${response.error}`, 'error');
+                }
+            } catch (error) {
+                showResult('testResult', `Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function getState() {
+            try {
+                const response = await sendMessage({ type: 'GET_STATE' });
+                if (response.success) {
+                    const state = response;
+                    let html = '<h4>Current State:</h4>';
+                    html += `<div><strong>Authenticated:</strong> ${state.isAuthenticated ? 'Yes' : 'No'}</div>`;
+                    html += `<div><strong>Playing:</strong> ${state.isPlaying ? 'Yes' : 'No'}</div>`;
+                    html += `<div><strong>Current Playlist:</strong> ${state.currentPlaylist || 'None'}</div>`;
+                    if (state.currentTrack) {
+                        html += `<div><strong>Current Track:</strong> ${state.currentTrack.name} by ${state.currentTrack.artists.map(a => a.name).join(', ')}</div>`;
+                    }
+                    showResult('playbackResult', html, 'success');
+                } else {
+                    showResult('playbackResult', `Error: ${response.error}`, 'error');
+                }
+            } catch (error) {
+                showResult('playbackResult', `Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function togglePlayback() {
+            try {
+                const response = await sendMessage({ type: 'TOGGLE_PLAYBACK' });
+                if (response.success) {
+                    showResult('playbackResult', `✅ Playback toggled successfully. Now playing: ${response.isPlaying ? 'Yes' : 'No'}`, 'success');
+                } else {
+                    showResult('playbackResult', `Error: ${response.error}`, 'error');
+                }
+            } catch (error) {
+                showResult('playbackResult', `Error: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-load mappings when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            getMappings();
+        });
+    </script>
+</body>
+</html>
